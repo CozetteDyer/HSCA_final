@@ -1,0 +1,64 @@
+# do fma.do
+# ** Warning: (vlib-34) Library already exists at "worklib".
+# Errors: 0, Warnings: 1
+# Model Technology ModelSim SE-64 vlog 2021.3 Compiler 2021.07 Jul 13 2021
+# Start time: 09:38:52 on Apr 08,2022
+# vlog -lint -sv -work worklib fma16.sv testbench.sv 
+# -- Compiling module fma16
+# -- Compiling module testbench_fma16
+# ** Warning: testbench.sv(2): (vlog-2605) empty port name in port list.
+# 
+# Top level modules:
+# 	testbench_fma16
+# End time: 09:38:52 on Apr 08,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# Model Technology ModelSim SE-64 vopt 2021.3 Compiler 2021.07 Jul 13 2021
+# Start time: 09:38:52 on Apr 08,2022
+# vopt "+acc" worklib.testbench_fma16 -work worklib -o testbenchopt 
+# 
+# Top level modules:
+# 	testbench_fma16
+# 
+# Analyzing design...
+# -- Loading module testbench_fma16
+# -- Loading module fma16
+# Optimizing 2 design-units (inlining 0/2 module instances):
+# -- Optimizing module testbench_fma16(fast)
+# ** Warning: testbench.sv(2): (vopt-2605) empty port name in port list.
+# -- Optimizing module fma16(fast)
+# Optimized design name is testbenchopt
+# End time: 09:38:52 on Apr 08,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vsim -lib worklib testbenchopt 
+# Start time: 09:38:52 on Apr 08,2022
+# //  ModelSim SE-64 2021.3 Jul 13 2021 Linux 5.4.0-107-generic
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.testbench_fma16(fast)
+# Loading work.fma16(fast)
+# Error: inputs 3c00 * 3c00 + 0000
+#   result = xxxx (3c00 expected)
+# Error: inputs 3c00 * 3e00 + 0000
+#   result = xxxx (3e00 expected)
+# Error: inputs 3e00 * 3c00 + 0000
+#   result = xxxx (3e00 expected)
+# Error: inputs 3e00 * 3e00 + 0000
+#   result = xxxx (4080 expected)
+#          4 tests completed with          4 errors
+# ** Note: $stop    : testbench.sv(53)
+#    Time: 55 ns  Iteration: 1  Instance: /testbench_fma16
+# Break in Module testbench_fma16 at testbench.sv line 53
+# Stopped at testbench.sv line 53
+# End time: 09:39:02 on Apr 08,2022, Elapsed time: 0:00:10
+# Errors: 0, Warnings: 0
