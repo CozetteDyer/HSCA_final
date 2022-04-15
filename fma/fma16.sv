@@ -26,16 +26,8 @@ module fma16 (x, y, z, mul, add, negr, negz,
    output logic [15:0] result;
 
 // ----------------------------------------------------//
-   if (mul) p = x * y;
+   if (mul) multiplier(x,y,p); // p = x*y
    else p = x;
-
-// can this be done? check again next week when we die                  ~~~
-   if (mul) begin
-      p = x * y; 
-      if (add = 0) fmul();                                              // ~~ CHECK MEE
-   end // end of mul = 1 if loop
-   else p = x;
-// test, remove this whole section if this cannot be done               ~~~
 
    if (add) result = p + z;
    else result = p;
@@ -58,3 +50,20 @@ module fma16 (x, y, z, mul, add, negr, negz,
 
 endmodule // end of fma16 module
 
+
+// 4.33b: signed multiplier
+module multiplier(input  logic signed [15:0] a, b,
+                  output logic signed [31:0] y);
+
+  assign y = a * b;
+endmodule // end of signed multiplier 
+
+// 5.1: adder
+module adder #(parameter N = 16)
+              (input  logic [N-1:0] a, b,
+               input  logic         cin,
+               output logic [N-1:0] s,
+               output logic         cout);
+
+  assign {cout, s} = a + b + cin;
+endmodule // end of adder
