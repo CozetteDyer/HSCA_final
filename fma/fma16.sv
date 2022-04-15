@@ -17,7 +17,7 @@
 //    Computes result = (X*Y) + (Z)
 
 module fma16 (x, y, z, mul, add, negr, negz,
-	      roundmode, result);
+	           roundmode, result);
    
    input logic [15:0]  x, y, z, p;   
    input logic 	     mul, add, negr, negz;
@@ -26,12 +26,15 @@ module fma16 (x, y, z, mul, add, negr, negz,
    output logic [15:0] result;
 
 // ----------------------------------------------------//
-   if (mul) csam11(p,x,y); // p = x*y
-   else p = x;
+//   if (mul) csam11(p,x,y); // p = x*y
+//   else p = x;
+   assign result = mul ? csam11(p,x,y) : x;
 
+//   assign result = add ? half_adder(cout, r, x, y); 
    if (add) result = p + z;
    else result = p;
 
+   
 // negative result
    if (negr) result = ~result;
       
