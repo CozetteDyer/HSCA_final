@@ -47,7 +47,7 @@ assign rsign[15] = (xsign ^ ysign);
 
 assign intRes[21:0] = (xman * yman);
 assign rexp = $signed(xexp + yexp + 5'b10001) + intRes[21]; // Add by -15 
-assign intRes2[20:0] = (intRes[20:0] >> intRes[21]); // shift if 1; if o, not
+assign intRes2[20:0] = (intRes[20:0] >> intRes[21]); // shift, if 1; if 0, don't
 assign rman[10:0] = {1'b1, intRes2[19:10]};
 
 assign result[15] = rsign;
@@ -57,11 +57,11 @@ assign result[9:0] = rman[9:0];
 
 //   if (mul) p = x*y
 //   else p = x;
-   assign p = mul ? x*y : x;
+   assign p = mul ? (x*y) : x;
 
 //   if (add) result = p + z;
 //   else result = p;
-   assign result = add ? p+z : p;
+   assign result = add ? (p+z) : p;
    
 // negative result
 //   if (negr) result = ~result;
@@ -80,26 +80,3 @@ assign result[9:0] = rman[9:0];
 // ----------------------------------------------------// 
 
 endmodule // end of fma16 module
-
-module half_adder (Cout, Sum, A, B);
-
-   input logic A,B;
-   output logic Sum,Cout;
-
-   xor xor1(Sum,A,B);
-   and and1(Cout,A,B);
-
-endmodule // end of Half Adder
-
-
-module full_adder (Cout, Sum, A, B, Cin);
-
-   input logic A,B,Cin;
-   output logic Sum,Cout;
-   wire S1,C1,C2;
-
-   half_adder ha1(C1,S1,A,B);
-   half_adder ha2(C2,Sum,S1,Cin);
-   or or1(Cout,C1,C2);
-
-endmodule // end of Full Adder
