@@ -26,33 +26,33 @@ module fma16 (x, y, z, mul, add, negr, negz,
    output logic [15:0] result;
 
 // -------------------- Assign bits to variables --------------------------------//
-logic xsign, ysign, zsign, rsign; // sign bits!
-logic [4:0] xexp, yexp, zexp, rexp; // exponents baby
-logic [10:0] xman, yman, zman, rman; // mantissas 
+logic x_sign, y_sign, z_sign, res_sign; // sign bits!
+logic [4:0] x_exp, y_exp, z_exp, res_exp; // exponents baby
+logic [10:0] x_man, y_man, z_man, res_man; // mantissas 
 logic [21:0] temp, temp2; // intermediate result holder
 
-assign xsign = x[15];
-assign ysign = y[15];
-assign zsign = z[15];
+assign x_sign = x[15];
+assign y_sign = y[15];
+assign z_sign = z[15];
 
-assign xexp = x[14:10];
-assign yexp = y[14:10];
-assign zexp = z[14:10];
+assign x_exp = x[14:10];
+assign y_exp = y[14:10];
+assign z_exp = z[14:10];
 
-assign xman = { 1'b1, x[9:0]}; // appended leading 1 to mantissas
-assign yman = { 1'b1, y[9:0]}; // i think
-assign zman = { 1'b1, z[9:0]};
+assign x_man = { 1'b1, x[9:0]}; // appended leading 1 to mantissas
+assign y_man = { 1'b1, y[9:0]}; // i think
+assign z_man = { 1'b1, z[9:0]};
 
-assign rsign[15] = (xsign ^ ysign); 
+assign res_sign[15] = (x_sign ^ y_sign); 
 
-assign temp[21:0] = (xman * yman);
-assign rexp = $signed(xexp + yexp + 5'b10001) + temp[21]; // Add by -15 
+assign temp[21:0] = (x_man * y_man);
+assign res_exp = $signed(x_exp + y_exp + 5'b10001) + temp[21]; // Add by -15 
 assign temp2[20:0] = (temp[20:0] >> temp[21]); // shift, if 1; if 0, don't
-assign rman[10:0] = {1'b1, temp2[19:10]};
+assign res_man[10:0] = {1'b1, temp2[19:10]};
 
-assign result[15] = rsign;
-assign result[14:10] = rexp;
-assign result[9:0] = rman[9:0];
+assign result[15] = res_sign;
+assign result[14:10] = res_exp;
+assign result[9:0] = res_man[9:0];
 
 /*
 //   if (mul) p = x*y
