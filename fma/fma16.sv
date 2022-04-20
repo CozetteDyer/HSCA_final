@@ -29,7 +29,7 @@ module fma16 (x, y, z, mul, add, negr, negz,
 logic xsign, ysign, zsign, rsign; // sign bits!
 logic [4:0] xexp, yexp, zexp, rexp; // exponents baby
 logic [10:0] xman, yman, zman, rman; // mantissas 
-logic [21:0] intRes, intRes2; // intermediate result
+logic [21:0] temp, temp2; // intermediate result holder
 
 assign xsign = x[15];
 assign ysign = y[15];
@@ -45,10 +45,10 @@ assign zman = { 1'b1, z[9:0]};
 
 assign rsign[15] = (xsign ^ ysign); 
 
-assign intRes[21:0] = (xman * yman);
-assign rexp = $signed(xexp + yexp + 5'b10001) + intRes[21]; // Add by -15 
-assign intRes2[20:0] = (intRes[20:0] >> intRes[21]); // shift, if 1; if 0, don't
-assign rman[10:0] = {1'b1, intRes2[19:10]};
+assign temp[21:0] = (xman * yman);
+assign rexp = $signed(xexp + yexp + 5'b10001) + temp[21]; // Add by -15 
+assign temp2[20:0] = (temp[20:0] >> temp[21]); // shift, if 1; if 0, don't
+assign rman[10:0] = {1'b1, temp2[19:10]};
 
 assign result[15] = rsign;
 assign result[14:10] = rexp;
@@ -57,11 +57,11 @@ assign result[9:0] = rman[9:0];
 
 //   if (mul) p = x*y
 //   else p = x;
-   assign p = mul ? (x*y) : x;
+//   assign p = mul ? (x*y) : x;
 
 //   if (add) result = p + z;
 //   else result = p;
-   assign result = add ? (p+z) : p;
+//   assign result = add ? (p+z) : p;
    
 // negative result
 //   if (negr) result = ~result;
