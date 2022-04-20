@@ -64,10 +64,10 @@ assign result[9:0] = rman[9:0];
    assign result = add ? p+z : p;
    
 // negative result
-   if (negr) result = ~result;
+//   if (negr) result = ~result;
       
 // negative zero
-   if (negz) z = ~z;
+//   if (negz) z = ~z;
 
    // 00: rz, 01: rne, 10: rp, 11: rn   
    casex (roundmode)
