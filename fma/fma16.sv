@@ -43,10 +43,10 @@ assign xman = { 1'b1, x[9:0]}; // appended leading 1 to mantissas
 assign yman = { 1'b1, y[9:0]}; // i think
 assign zman = { 1'b1, z[9:0]};
 
-rsign[15] = xsign^ysign;
+assign rsign[15] = (xsign ^ ysign); 
 
 assign intRes[21:0] = (xman * yman);
-assign rexp = $signed(xexp + yexp + 5'b10001) + intRes[21]; // shift by -15 
+assign rexp = $signed(xexp + yexp + 5'b10001) + intRes[21]; // Add by -15 
 assign intRes2[20:0] = (intRes[20:0] >> intRes[21]); // shift if 1; if o, not
 assign rman[10:0] = {1'b1, intRes2[19:10]};
 
