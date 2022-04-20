@@ -54,20 +54,20 @@ assign result[15] = rsign;
 assign result[14:10] = rexp;
 assign result[9:0] = rman[9:0];
 
-
+/*
 //   if (mul) p = x*y
-//   else p = x;
-//   assign p = mul ? (x*y) : x;
+//   else p = x;  
+   assign p = mul ? (x*y) : x;
 
 //   if (add) result = p + z;
 //   else result = p;
-//   assign result = add ? (p+z) : p;
+   assign result = add ? (p+z) : p;
    
 // negative result
-//   if (negr) result = ~result;
+   if (negr) result = ~result;
       
 // negative zero
-//   if (negz) z = ~z;
+   if (negz) z = ~z;
 
    // 00: rz, 01: rne, 10: rp, 11: rn   
    casex (roundmode)
@@ -76,7 +76,7 @@ assign result[9:0] = rman[9:0];
       2'b10: // roundmode = Round to positive infinity;
       2'b11: // roundmode = Round to nearest;
    endcase // end of rounding mode switch statement 
-
+*/
 // ----------------------------------------------------// 
 
 endmodule // end of fma16 module
