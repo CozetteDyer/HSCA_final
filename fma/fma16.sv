@@ -27,7 +27,7 @@ module fma16 (x, y, z, mul, add, negr, negz,
 
 // -------------------- Assign bits to variables --------------------------------//
 logic xsign, ysign, zsign, rsign; // sign bits!
-logic [4:0] exp, yexp, zexp, rexp; // exponents baby
+logic [4:0] xexp, yexp, zexp, rexp; // exponents baby
 logic [10:0] xman, yman, zman, rman; // mantissas 
 logic [21:0] intRes, intRes2; // intermediate result
 
