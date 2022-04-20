@@ -19,7 +19,7 @@
 module fma16 (x, y, z, mul, add, negr, negz,
 	           roundmode, result);
    
-   input logic [15:0]  x, y, z, p;   
+   input logic [15:0]  x, y, z;//, p;   
    input logic 	     mul, add, negr, negz;
    input logic [1:0]   roundmode;
    
@@ -47,7 +47,7 @@ assign res_sign[15] = (x_sign ^ y_sign);
 
 assign temp[21:0] = (x_man * y_man);
 assign res_exp = $signed(x_exp + y_exp + 5'b10001) + temp[21]; // Add by -15 
-assign temp2[20:0] = (temp[20:0] >> temp[21]); // shift, if 1; if 0, don't
+assign temp2[20:0] = (temp[20:0] >> temp[21]); // shift, if 1; if 0, no change
 assign res_man[10:0] = {1'b1, temp2[19:10]};
 
 assign result[15] = res_sign;
