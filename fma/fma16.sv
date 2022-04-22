@@ -37,15 +37,15 @@ logic [15:0] prod; // the product sweetie pi
 
 // -------------------- Assign bits to variables ----------//
 assign x_sign = x[15];
-assign y_sign = y[15]; // add something??? ******************************************************
+assign y_sign = mul ? y[15] : 1'b0; // y[15]; // add something??? ******************************************************
 assign z_sign = z[15];
 
 assign x_exp = x[14:10];
-assign y_exp = y[14:10]; // another lol *********************************************************
+assign y_exp = mul ? y[14:10] : 5'b01111; //y[14:10]; // another lol *********************************************************
 assign z_exp = z[14:10];
 
 assign x_man = { 1'b1, x[9:0]}; // appended leading 1 to mantissas
-assign y_man = { 1'b1, y[9:0]}; // i think
+assign y_man = mul ? {1'b1, y[9:0]} : 11'b00000000000; // { 1'b1, y[9:0]}; // i think
 
 				// ADD to Y ****************************************************
 assign z_man = { 1'b1, z[9:0]};
