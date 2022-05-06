@@ -1,6 +1,7 @@
 // fma16.sv
 // David_Harris@hmc.edu 26 February 2022
 // 16-bit floating-point multiply-accumulate
+// modified by Cozette Dyer for ECEN 4233 final project 
 
 // Operation: general purpose multiply, add, fma, with optional negation
 //   If mul=1, p = x * y.  Else p = x.
@@ -18,9 +19,8 @@
 // fmsub: (x*y - z)
 // fnmadd: -(x*y + z) or -(x*y - z)
 // fnmsub: -(x*y - z) or -(x*y) + z
- 
 
-//    Computes result = (X*Y) + (Z)
+ //    Computes result = (X*Y) + (Z)
 
 module fma16 (x, y, z, mul, add, negr, negz,
 	           roundmode, result);
@@ -44,46 +44,53 @@ logic [15:0] prod; // the product sweetie pi
 
 // -------------------- Assign bits to variables ----------//
 assign x_sign = x[15];
-assign y_sign = y[15]; // add something??? ******************************************************
+assign y_sign = y[15];
 assign z_sign = z[15];
 
 assign x_exp = x[14:10];
-assign y_exp = y[14:10]; // another lol *********************************************************
+assign y_exp = y[14:10];
 assign z_exp = z[14:10];
 
-assign x_man = { 1'b1, x[9:0]}; // appended leading 1 to mantissas
+assign x_man = { 1'b1, x[9:0]}; // appended leading 1 to mantissas bc
 assign y_man = { 1'b1, y[9:0]}; // actual mantissa is bits [9:0]
 assign z_man = { 1'b1, z[9:0]};
 
+
+// FMA PROCEDURE: 
+//    1. multiply significands of X and Y
+//    2. add exponents of X and Y
+//    3. Determine shift needed, if any
+//    4. Shift faction portion of Z to align to product
+//    5. Add Z to the product
+//    6. Find leading zero for the shift needed for normalization
+//    7. Normalize if needed (by shifting and adjusting exponent)
+//    8. Round result
+//    9. Handle IEEE 754 flags and special cases
 
 // -------------------- Multiply! ---------------------//
 assign res_sign = (x_sign ^ y_sign);  // sign bit of result 
 assign temp[21:0] = (x_man * y_man); // multiply the mantissas x_man * y_man
 assign prod_exp = $signed(x_exp + y_exp + 5'b10001) + temp[21]; // Add by -15 
 assign temp2[20:0] = (temp[20:0] >> temp[21]); // shift, if 1; if 0, no change
-assign prod_man[10:0] = {1'b1, temp2[19:10]}; // add a 1 to mant bc its the way it is
+assign prod_man[10:0] = {1'b1, temp2[19:10]}; // add a leading 1 to mantis bc its the way it is
 
-assign prod[15] = res_sign; // idk if it works like this?? ***********************************
+assign prod[15] = res_sign; 
 assign prod[14:10] = prod_exp;
 assign prod[9:0] = prod_man[9:0];
 
 
-// -------------------- Add! -------------------------//
-//assign temp3[21:0] = z_man >> (x_exp-z_exp); // z mantissas buffer with shift **************************
-assign temp3[21:0] = z_man * (2**(z_exp - x_exp));  // line 4 of psuedo
+// ---------------------- Add! -----------------------//
+assign temp3[21:0] = z_man >>> (x_exp-z_exp); // z mantissas buffer with shift **************************
 assign temp4[11:0] = x_man + temp3; // buffer of mantissa // line 5 of psuedo
 
 assign res_exp = x_exp + temp4[11]; // temp4 12th bit is either 0 or 1. 
- //NEED TO FIND THE LEADING 1 and shift res_exp (MAYBE RENAME) 
-	// STEP 7 in fma procudure lecture 18 slide something  
-
+//NEED TO FIND THE LEADING 1 and shift res_exp (MAYBE RENAME) 
+// STEP 7 in fma procudure lecture 18 slide something  
 // temp4 needs to shift and normalize
 
 assign result[15] = res_sign;
 assign result[14:10] = res_exp;
 assign result[9:0] = temp4[9:0]; //mantissa of result  
-
-//assign result[11:0] = temp4[11:0];
 
 /* //   if (mul) p = x*y
 //   else p = x;  
