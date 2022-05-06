@@ -14,14 +14,20 @@
 //   fnmadd: mul = 1, add = 1, negr = 1, negz = 0
 //   fnmsub: mul = 1, add = 1, negr = 1, negz = 1
 
+// fmadd: (x*y + z)
+// fmsub: (x*y - z)
+// fnmadd: -(x*y + z) or -(x*y - z)
+// fnmsub: -(x*y - z) or -(x*y) + z
+ 
+
 //    Computes result = (X*Y) + (Z)
 
 module fma16 (x, y, z, mul, add, negr, negz,
 	           roundmode, result);
    
-   input logic [15:0]  x, y, z;
+   input logic	[15:0]  x, y, z;
    input logic 	       mul, add, negr, negz;
-   input logic [1:0]   roundmode;
+   input logic 	[1:0]   roundmode;
    
    output logic [15:0] result; 
 
@@ -29,7 +35,8 @@ module fma16 (x, y, z, mul, add, negr, negz,
 logic x_sign, y_sign, z_sign, res_sign; // sign bits!
 logic [4:0] x_exp, y_exp, z_exp, prod_exp, res_exp; // exponents baby
 logic [10:0] x_man, y_man, z_man, prod_man, res_man; // mantissas 
-logic [21:0] temp, temp2, temp3, temp4; // intermediate results holder
+logic [21:0] temp, temp2, temp3; // intermediate results holder
+logic [11:0] temp4; // holder of mantissas addition
 logic [15:0] prod; // the product sweetie pi 
 // Product is X*Y
 // Result is the final result of X*Y + Z
@@ -37,23 +44,21 @@ logic [15:0] prod; // the product sweetie pi
 
 // -------------------- Assign bits to variables ----------//
 assign x_sign = x[15];
-assign y_sign = mul ? y[15] : 1'b0; // y[15]; // add something??? ******************************************************
+assign y_sign = y[15]; // add something??? ******************************************************
 assign z_sign = z[15];
 
 assign x_exp = x[14:10];
-assign y_exp = mul ? y[14:10] : 5'b01111; //y[14:10]; // another lol *********************************************************
+assign y_exp = y[14:10]; // another lol *********************************************************
 assign z_exp = z[14:10];
 
 assign x_man = { 1'b1, x[9:0]}; // appended leading 1 to mantissas
-assign y_man = mul ? {1'b1, y[9:0]} : 11'b00000000000; // { 1'b1, y[9:0]}; // i think
-
-				// ADD to Y ****************************************************
+assign y_man = { 1'b1, y[9:0]}; // actual mantissa is bits [9:0]
 assign z_man = { 1'b1, z[9:0]};
 
-// -------------------- Multiply! ---------------------//
-assign res_sign = (x_sign ^ y_sign);  // sign bit of result
 
-assign temp[21:0] = (x_man * y_man); // multiply the mantissas
+// -------------------- Multiply! ---------------------//
+assign res_sign = (x_sign ^ y_sign);  // sign bit of result 
+assign temp[21:0] = (x_man * y_man); // multiply the mantissas x_man * y_man
 assign prod_exp = $signed(x_exp + y_exp + 5'b10001) + temp[21]; // Add by -15 
 assign temp2[20:0] = (temp[20:0] >> temp[21]); // shift, if 1; if 0, no change
 assign prod_man[10:0] = {1'b1, temp2[19:10]}; // add a 1 to mant bc its the way it is
@@ -64,33 +69,30 @@ assign prod[9:0] = prod_man[9:0];
 
 
 // -------------------- Add! -------------------------//
-assign temp3[21:0] = (prod_man + z_man); // multiply the mantissas
-assign res_exp = $signed(prod_exp + z_exp + 5'b10001) + temp3[21]; // Add by -15 
-assign temp4[20:0] = (temp3[20:0] >> temp3[21]); // shift, if 1; if 0, no change
-assign res_man[10:0] = {1'b1, temp4[19:10]}; // add a 1 to mant bc its the way it is
+//assign temp3[21:0] = z_man >> (x_exp-z_exp); // z mantissas buffer with shift **************************
+assign temp3[21:0] = z_man * (2**(z_exp - x_exp));  // line 4 of psuedo
+assign temp4[11:0] = x_man + temp3; // buffer of mantissa // line 5 of psuedo
 
-assign result[15] = res_sign; // idk if it works like this?? ***********************************
-assign result[14:10] = prod_exp;
-assign result[9:0] = prod_man[9:0];
+assign res_exp = x_exp + temp4[11]; // temp4 12th bit is either 0 or 1. 
+ //NEED TO FIND THE LEADING 1 and shift res_exp (MAYBE RENAME) 
+	// STEP 7 in fma procudure lecture 18 slide something  
 
-// Can i reuse this temp 1 and temp 2 variables?? *********************************************
+// temp4 needs to shift and normalize
 
+assign result[15] = res_sign;
+assign result[14:10] = res_exp;
+assign result[9:0] = temp4[9:0]; //mantissa of result  
 
+//assign result[11:0] = temp4[11:0];
 
-
-
-/*
-//   if (mul) p = x*y
+/* //   if (mul) p = x*y
 //   else p = x;  
    assign p = mul ? (x*y) : x;
-
 //   if (add) result = p + z;
 //   else result = p;
    assign result = add ? (p+z) : p;
-   
 // negative result
-   if (negr) result = ~result;
-      
+   if (negr) result = ~result
 // negative zero
    if (negz) z = ~z;
 
